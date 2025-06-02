@@ -13,7 +13,7 @@ const Login: Interfaces.Controllers.Async = async (req, res, next) => {
     if (!user) {
       return next(Utils.Response.error("User not found", 404));
     }
-    const isPasswordValid = await bcrypt.compare(password, user.hashedPassword);
+    const isPasswordValid = await bcrypt.compare(password, user.hashpassword);
     if (!isPasswordValid) {
       return next(Utils.Response.error("Invalid password", 401));
     }
@@ -22,7 +22,7 @@ const Login: Interfaces.Controllers.Async = async (req, res, next) => {
       process.env.JWT_SECRET || "your-secret-key",
       { expiresIn: "1d" }
     );
-    const { hashedPassword: _, ...userSafe } = user;
+    const { hashpassword: _, ...userSafe } = user;
     return res
       .status(200)
       .json(Utils.Response.success({ user: userSafe, token }, 200));

@@ -9,13 +9,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 const create: Interfaces.Controllers.Async = async (req, res, next) => {
   const { name, email, username, password, role, RollNo, Branch } = req.body;
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashpassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
       data: {
         name,
         email,
         username,
-        hashedPassword,
+        hashpassword,
         role,
         RollNo,
         Branch,
@@ -24,10 +24,8 @@ const create: Interfaces.Controllers.Async = async (req, res, next) => {
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
       expiresIn: "1d",
     });
-    const { hashedPassword: _, ...userSafe } = user;
-    return res
-      .status(201)
-      .json(Utils.Response.success({ user: userSafe, token }, 201));
+    const { hashpassword: _, ...userSafe } = user;
+    return res.json(Utils.Response.success({ user: userSafe, token }, 201));
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));
   }

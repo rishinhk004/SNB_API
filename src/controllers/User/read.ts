@@ -12,7 +12,7 @@ const read: Interfaces.Controllers.Async = async (req, res, next) => {
     if (!user) {
       return next(Utils.Response.error("User not found", 404));
     }
-    const userSafe = Utils.omit(user, ["hashedPassword"]);
+    const userSafe = Utils.omit(user, ["hashpassword"]);
     return res.json(Utils.Response.success(userSafe));
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));

@@ -23,7 +23,7 @@ const update: Interfaces.Controllers.Async = async (req, res, next) => {
       where: { id },
       data: updateData,
     });
-    const userSafe = Utils.omit(updatedUser, ["hashedPassword"]);
+    const userSafe = Utils.omit(updatedUser, ["hashpassword"]);
     return res.json(Utils.Response.success(userSafe));
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));
