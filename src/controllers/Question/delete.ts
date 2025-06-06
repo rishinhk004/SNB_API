@@ -16,4 +16,4 @@ const deleteById: Interfaces.Controllers.Async = async (req, res, next) => {
   }
 };
 
-export { deleteById };
+export default deleteById;

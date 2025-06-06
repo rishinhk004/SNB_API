@@ -1,3 +1,5 @@
-export * from "./create";
-export * from "./read";
-export * from "./delete";
+import { create } from "./create";
+import { read } from "./read";
+import { deleteById } from "./delete";
+
+export { create, read, deleteById };

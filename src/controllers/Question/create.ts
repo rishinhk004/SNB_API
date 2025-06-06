@@ -29,4 +29,4 @@ const create: Interfaces.Controllers.Async = async (req, res, next) => {
   }
 };
 
-export { create };
+export default create;
