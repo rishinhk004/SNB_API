@@ -13,7 +13,7 @@ esbuild
     entryPoints: [`./${buildDir}/${buildEntry}`],
     bundle: true,
     platform: "node",
-    target: "node18",
+    target: "node20",
     outfile: `./${distDir}/${distOutfile}`,
     minify: true,
   })

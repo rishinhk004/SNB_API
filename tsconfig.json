@@ -1,6 +1,6 @@
 {
   // Paths not added on purpose
-  "compilerOptions": {
+   "compilerOptions": {
     "moduleResolution": "node",
     "module": "ESNext",
     "target": "ESNext",
@@ -26,5 +26,5 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-   "include": ["src/types", "src/**/*"]
+  "include": ["**/*.ts", "src/types", "src/**/*"]
 }

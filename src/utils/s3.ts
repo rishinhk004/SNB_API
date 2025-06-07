@@ -1,32 +1,22 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3, BUCKET_NAME } from "./s3Config";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
-const REGION = process.env.AWS_REGION!;
-const BUCKET = process.env.AWS_S3_BUCKET!;
+export const uploadToS3 = async (
+  file: Express.Multer.File
+): Promise<string> => {
+  const fileExt = path.extname(file.originalname);
+  const fileKey = `${uuidv4()}${fileExt}`;
 
-const s3Client = new S3Client({
-  region: REGION,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: fileKey,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  });
 
-export async function uploadToS3(
-  fileBuffer: Buffer,
-  key: string,
-  contentType: string
-): Promise<string> {
-  const params = {
-    Bucket: BUCKET,
-    Key: key,
-    Body: fileBuffer,
-    ContentType: contentType,
-  };
+  await s3.send(command);
 
-  try {
-    await s3Client.send(new PutObjectCommand(params));
-    return `https://${BUCKET}.s3.${REGION}.amazonaws.com/${key}`;
-  } catch (error) {
-    throw new Error("Error uploading file to S3: " + error);
-  }
-}
+  return `https://${BUCKET_NAME}.s3.amazonaws.com/${fileKey}`;
+};

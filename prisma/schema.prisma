@@ -23,35 +23,35 @@ enum Day {
 }
 
 model User {
-  id           String       @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  email        String       @unique
-  username     String
-  hashpassword String
-  RollNo       Int?         @unique
-  Branch       String?
-  role         Role
-  courses      Enrollment[]
-  questions    Question[]
-  answers      Answer[]
-  coursesTaught Course[]    @relation("ProfessorCourses")
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String       @unique
+  username      String
+  firebaseId    String       @unique
+  RollNo        Int?         @unique
+  Branch        String?
+  role          Role
+  courses       Enrollment[]
+  questions     Question[]
+  answers       Answer[]
+  coursesTaught Course[]     @relation("ProfessorCourses")
 }
 
 model Course {
-  id             String         @id @default(auto()) @map("_id") @db.ObjectId
-  name           String
-  code           String         @unique
-  description    String?
-  credits        Int?
-  semester       Int?
-  year           Int?
-  users          Enrollment[]
-  timetable      Timetable[]
-  questions      Question[]
-  announcements  Announcement[]
-  sessions       ClassSession[]
-  professorId    String?        @db.ObjectId
-  professor      User?          @relation("ProfessorCourses", fields: [professorId], references: [id])
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  code          String         @unique
+  description   String?
+  credits       Int?
+  semester      Int?
+  year          Int?
+  users         Enrollment[]
+  timetable     Timetable[]
+  questions     Question[]
+  announcements Announcement[]
+  sessions      ClassSession[]
+  professorId   String?        @db.ObjectId
+  professor     User?          @relation("ProfessorCourses", fields: [professorId], references: [id])
 }
 
 model Enrollment {
@@ -64,42 +64,42 @@ model Enrollment {
 }
 
 model Timetable {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  courseId   String   @db.ObjectId
-  course     Course   @relation(fields: [courseId], references: [id])
-  dayOfWeek  Day
-  startTime  String
-  endTime    String
-  location   String?
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  courseId  String  @db.ObjectId
+  course    Course  @relation(fields: [courseId], references: [id])
+  dayOfWeek Day
+  startTime String
+  endTime   String
+  location  String?
 }
 
 model Question {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  courseId  String    @db.ObjectId
-  course    Course    @relation(fields: [courseId], references: [id])
-  userId    String    @db.ObjectId
-  user      User      @relation(fields: [userId], references: [id])
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  courseId  String   @db.ObjectId
+  course    Course   @relation(fields: [courseId], references: [id])
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
   content   String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
   answers   Answer[]
 }
 
 model Answer {
-  id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  questionId String    @db.ObjectId
-  question   Question  @relation(fields: [questionId], references: [id])
-  userId     String    @db.ObjectId
-  user       User      @relation(fields: [userId], references: [id])
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId String   @db.ObjectId
+  question   Question @relation(fields: [questionId], references: [id])
+  userId     String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id])
   content    String
-  createdAt  DateTime  @default(now())
+  createdAt  DateTime @default(now())
 }
 
 model ClassSession {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  courseId   String   @db.ObjectId
-  course     Course   @relation(fields: [courseId], references: [id])
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  courseId   String    @db.ObjectId
+  course     Course    @relation(fields: [courseId], references: [id])
   date       DateTime
-  isCanceled Boolean  @default(false)
+  isCanceled Boolean   @default(false)
   canceledAt DateTime?
 }
 

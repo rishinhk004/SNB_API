@@ -3,6 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import * as Middlewares from "./src/middlewares";
 import * as Routers from "./src/routers";
 import * as Constants from "./src/globals/constants";
@@ -11,7 +14,11 @@ const app = express();
 
 // Middlewares
 app
-  .use(cors())
+  .use(
+    cors({
+      origin: true,
+    })
+  )
   .use(helmet())
   .use(morgan("dev"))
   .use(express.json())

@@ -94,14 +94,12 @@ const generateSessions: Interfaces.Controllers.Async = async (
     );
 
     if (filteredSessions.length === 0) {
-      return res
-        .status(200)
-        .json(
-          Utils.Response.success({
-            createdCount: 0,
-            message: "No new sessions to create",
-          })
-        );
+      return res.status(200).json(
+        Utils.Response.success({
+          createdCount: 0,
+          message: "No new sessions to create",
+        })
+      );
     }
 
     const created = await prisma.classSession.createMany({

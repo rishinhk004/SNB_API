@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import { prisma } from "src/utils";
 import * as Utils from "src/utils";
@@ -9,23 +8,19 @@ export const authenticate = async (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
+  const firebaseAdmin = Utils.getFirebaseAuth();
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json(Utils.Response.error("No token provided", 401));
   }
-
   const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "your-secret-key"
-    ) as { id: string };
+    const decodedToken = await firebaseAdmin.verifyIdToken(token);
+    const firebaseId = decodedToken.uid;
+    const user = await prisma.user.findUnique({ where: { firebaseId } });
 
-    const user = await prisma.user.findUnique({ where: { id: decoded.id } });
     if (!user) {
       return res.status(401).json(Utils.Response.error("User not found", 401));
     }
-
     req.user = user;
     return next();
   } catch (err) {
