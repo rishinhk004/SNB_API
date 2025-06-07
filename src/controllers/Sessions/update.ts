@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 
 const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
-    const { id: courseId } = req.params;
+    const { courseId } = req.params;
 
     if (!courseId) {
       return res
@@ -46,14 +46,12 @@ const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
       },
     });
 
-    return res
-      .status(200)
-      .json(
-        Utils.Response.success({
-          message: "Class cancelled successfully",
-          session: updated,
-        })
-      );
+    return res.status(200).json(
+      Utils.Response.success({
+        message: "Class cancelled successfully",
+        session: updated,
+      })
+    );
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));
   }

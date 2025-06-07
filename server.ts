@@ -19,6 +19,15 @@ app
 
 // Routers
 app.use(`${Constants.System.ROOT}/`, Routers.Health);
+app.use(`${Constants.System.ROOT}/auth`, Routers.Auth);
+app.use(`${Constants.System.ROOT}/users`, Routers.User);
+app.use(`${Constants.System.ROOT}/announcements`, Routers.Announcement);
+app.use(`${Constants.System.ROOT}/answers`, Routers.Answer);
+app.use(`${Constants.System.ROOT}/questions`, Routers.Question);
+app.use(`${Constants.System.ROOT}/courses`, Routers.Course);
+app.use(`${Constants.System.ROOT}/enrollments`, Routers.Enrollment);
+app.use(`${Constants.System.ROOT}/sessions`, Routers.Session);
+app.use(`${Constants.System.ROOT}/timetables`, Routers.TimeTable);
 
 // Error Handlers
 app.use(Middlewares.Error.errorHandler);

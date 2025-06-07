@@ -23,9 +23,7 @@ const Login: Interfaces.Controllers.Async = async (req, res, next) => {
       { expiresIn: "1d" }
     );
     const { hashpassword: _, ...userSafe } = user;
-    return res
-      .status(200)
-      .json(Utils.Response.success({ user: userSafe, token }, 200));
+    return res.json(Utils.Response.success({ user: userSafe, token }, 200));
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));
   }

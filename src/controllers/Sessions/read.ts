@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 
 const getTodayStatus: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
-    const { id: courseId } = req.params;
+    const { courseId } = req.params;
 
     if (!courseId) {
       return res
