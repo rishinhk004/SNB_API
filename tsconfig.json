@@ -1,6 +1,6 @@
 {
   // Paths not added on purpose
-   "compilerOptions": {
+  "compilerOptions": {
     "moduleResolution": "node",
     "module": "ESNext",
     "target": "ESNext",

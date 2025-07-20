@@ -54,7 +54,7 @@
     "multer": "^2.0.1",
     "uuid": "^11.1.0"
   },
-   "lint-staged": {
+  "lint-staged": {
     "*.ts": [
       "pnpm lint",
       "pnpm pretty"
