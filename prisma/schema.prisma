@@ -28,7 +28,7 @@ model User {
   email         String       @unique
   username      String
   firebaseId    String       @unique
-  RollNo        Int?         @unique
+  RollNo        String?         @unique
   Branch        String?
   role          Role
   courses       Enrollment[]

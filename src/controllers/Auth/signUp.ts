@@ -3,17 +3,12 @@ import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
 
 const create: Interfaces.Controllers.Async = async (req, res, next) => {
-  const { name, email, username, password, role, RollNo, Branch } = req.body;
+  const { name, email, username, firebaseId, role, RollNo, Branch } = req.body;
   const firebaseAdmin = Utils.getFirebaseAuth();
   try {
-    const firebaseUser = await firebaseAdmin.createUser({
-      email,
-      password,
-      displayName: name,
-    });
     const user = await prisma.user.create({
       data: {
-        firebaseId: firebaseUser.uid,
+        firebaseId,
         name,
         email,
         username,
@@ -22,7 +17,7 @@ const create: Interfaces.Controllers.Async = async (req, res, next) => {
         Branch,
       },
     });
-    const token = await firebaseAdmin.createCustomToken(firebaseUser.uid, {
+    const token = await firebaseAdmin.createCustomToken(firebaseId, {
       role,
     });
     return res.json(Utils.Response.success({ user, token }, 201));
