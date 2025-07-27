@@ -1,4 +1,4 @@
 import createTimetable from "./create";
 import updateTimetable from "./update";
-
-export { createTimetable, updateTimetable };
+import del from "./delete";
+export { createTimetable, updateTimetable, del };
