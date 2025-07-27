@@ -8,6 +8,10 @@ const read: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id },
+      include: {
+        courses: true,
+        coursesTaught: true,
+      },
     });
     if (!user) {
       return next(Utils.Response.error("User not found", 404));
