@@ -12,5 +12,11 @@ router.post(
 );
 router.get("/", Controllers.Courses.readAll);
 router.get("/:id", Controllers.Courses.read);
+router.delete(
+  "/:id",
+  Middlewares.authenticate,
+  Middlewares.isProfessor,
+  Controllers.Courses.del
+);
 
 export default router;
