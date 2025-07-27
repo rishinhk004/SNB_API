@@ -45,7 +45,7 @@ model Course {
   credits       Int?
   semester      Int?
   year          Int?
-  users         Enrollment[]
+  users         Enrollment[]  
   timetable     Timetable[]
   questions     Question[]
   announcements Announcement[]
