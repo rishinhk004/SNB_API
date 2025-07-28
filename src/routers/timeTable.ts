@@ -16,5 +16,10 @@ router.patch(
   Middlewares.isProfessor,
   Controllers.TimeTable.updateTimetable
 );
-
+router.delete(
+  "/",
+  Middlewares.authenticate,
+  Middlewares.isProfessor,
+  Controllers.TimeTable.del
+);
 export default router;
