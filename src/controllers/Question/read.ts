@@ -9,7 +9,9 @@ const read: Interfaces.Controllers.Async = async (req, res, next) => {
       where: { courseId },
       include: {
         user: true,
-        answers: true,
+        answers: {
+          include: { user: true },
+        },
       },
     });
 
