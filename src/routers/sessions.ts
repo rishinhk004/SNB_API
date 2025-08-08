@@ -15,9 +15,9 @@ router.post(
   Middlewares.isProfessor,
   Controllers.Sessions.createSession
 );
-router.get("/course/:courseId/status", Controllers.Sessions.getTodayStatus);
+router.get("/:courseId", Controllers.Sessions.getTodayStatus);
 router.patch(
-  "course/:courseId/cancelToday",
+  "/:sessionId/cancel",
   Middlewares.authenticate,
   Middlewares.isProfessor,
   Controllers.Sessions.cancelToday

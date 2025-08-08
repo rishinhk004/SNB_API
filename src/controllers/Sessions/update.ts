@@ -1,26 +1,20 @@
 import * as Utils from "src/utils";
 import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
-import dayjs from "dayjs";
 
 const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
-    const { courseId } = req.params;
+    const { sessionId } = req.params;
+    const { courseId } = req.body;
 
-    if (!courseId) {
+    if (!sessionId) {
       return res
         .status(400)
-        .json(Utils.Response.error("courseId is required", 400));
+        .json(Utils.Response.error("sessionId is required", 400));
     }
-    const todayStart = dayjs().startOf("day").toDate();
-    const todayEnd = dayjs().endOf("day").toDate();
-    const session = await prisma.classSession.findFirst({
+    const session = await prisma.classSession.findUnique({
       where: {
-        courseId,
-        date: {
-          gte: todayStart,
-          lte: todayEnd,
-        },
+        id: sessionId,
       },
     });
 
