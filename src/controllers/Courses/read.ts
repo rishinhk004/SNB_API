@@ -40,6 +40,7 @@ const readAll: Interfaces.Controllers.Async = async (_req, res, next) => {
         questions: true,
         announcements: true,
         sessions: true,
+       
       },
     });
 

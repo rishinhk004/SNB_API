@@ -1,3 +1,4 @@
+
 import * as Utils from "src/utils";
 import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
@@ -9,7 +10,19 @@ const read: Interfaces.Controllers.Async = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: { id },
       include: {
-        courses: true,
+        courses: {
+          include: {
+            course: {
+              include: {
+                professor: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
         coursesTaught: true,
       },
     });
@@ -17,7 +30,6 @@ const read: Interfaces.Controllers.Async = async (req, res, next) => {
       return next(Utils.Response.error("User not found", 404));
     }
 
-    // Omit firebaseId or other sensitive fields
     const userSafe = Utils.omit(user, ["firebaseId"]);
     return res.json(Utils.Response.success(userSafe));
   } catch (err) {
