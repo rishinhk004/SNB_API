@@ -12,10 +12,8 @@ const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
         .status(400)
         .json(Utils.Response.error("courseId is required", 400));
     }
-
     const todayStart = dayjs().startOf("day").toDate();
     const todayEnd = dayjs().endOf("day").toDate();
-
     const session = await prisma.classSession.findFirst({
       where: {
         courseId,
@@ -37,19 +35,58 @@ const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
         .status(200)
         .json(Utils.Response.success("Class already cancelled"));
     }
-
-    const updated = await prisma.classSession.update({
+    const updatedSession = await prisma.classSession.update({
       where: { id: session.id },
       data: {
         isCanceled: true,
         canceledAt: new Date(),
       },
     });
+    const courseWithUsers = await prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        users: {
+          include: {
+            user: {
+              select: { name: true, email: true },
+            },
+          },
+        },
+      },
+    });
+    if (courseWithUsers && courseWithUsers.users.length > 0) {
+      const courseInfo = {
+        name: courseWithUsers.name,
+        code: courseWithUsers.code,
+      };
+      const sessionInfo = { date: updatedSession.date };
+      const emailPromises = courseWithUsers.users.map((enrollment) => {
+        const studentInfo = { name: enrollment.user.name };
+        return Utils.EmailServise.sendClassCancellationEmail(
+          enrollment.user.email,
+          studentInfo,
+          courseInfo,
+          sessionInfo
+        );
+      });
+      Promise.allSettled(emailPromises).then((results) => {
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
+            const failedEmail = courseWithUsers.users[index].user.email;
+            console.error(
+              `Failed to send cancellation email to ${failedEmail}:`,
+              result.reason
+            );
+          }
+        });
+      });
+    }
 
     return res.status(200).json(
       Utils.Response.success({
-        message: "Class cancelled successfully",
-        session: updated,
+        message:
+          "Class cancelled successfully. Notifications are being sent to students.",
+        session: updatedSession,
       })
     );
   } catch (err) {
