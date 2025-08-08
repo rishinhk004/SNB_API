@@ -3,24 +3,19 @@ import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
 
 const routine: Interfaces.Controllers.Async = async (req, res, next) => {
-  const firebaseId = req.headers["firebase-id"] as string;
-
-  if (!firebaseId) {
-    return next(Utils.Response.error("Firebase ID missing in headers", 400));
-  }
-
   try {
     const user = await prisma.user.findUnique({
-      where: { firebaseId },
+      where: { id: req.params.id },
       include: {
         courses: {
           include: {
             course: {
-              include: {
-                timetable: true,
-              },
+              include: { timetable: true },
             },
           },
+        },
+        coursesTaught: {
+          include: { timetable: true },
         },
       },
     });
@@ -39,24 +34,41 @@ const routine: Interfaces.Controllers.Async = async (req, res, next) => {
       "Sunday",
     ];
 
-    const routine = user.courses
-      .flatMap((enrollment) =>
-        enrollment.course.timetable.map((slot) => ({
-          courseName: enrollment.course.name,
-          courseCode: enrollment.course.code,
-          day: slot.dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          location: slot.location,
-        }))
-      )
-      .sort((a, b) => {
-        const dayDiff = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
-        if (dayDiff !== 0) {
-          return dayDiff;
-        }
-        return a.startTime.localeCompare(b.startTime);
-      });
+    // Sessions from enrolled courses (Student role)
+    const enrolledRoutines = user.courses.flatMap((enrollment) =>
+      enrollment.course.timetable.map((slot) => ({
+        courseName: enrollment.course.name,
+        courseCode: enrollment.course.code,
+        day: slot.dayOfWeek,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        location: slot.location,
+      }))
+    );
+
+    // Sessions from taught courses (Professor role)
+    const taughtRoutines =
+      user.role === "Professor"
+        ? user.coursesTaught.flatMap((course) =>
+            course.timetable.map((slot) => ({
+              courseName: course.name,
+              courseCode: course.code,
+              day: slot.dayOfWeek,
+              startTime: slot.startTime,
+              endTime: slot.endTime,
+              location: slot.location,
+            }))
+          )
+        : [];
+
+    // Merge and sort
+    const routine = [...enrolledRoutines, ...taughtRoutines].sort((a, b) => {
+      const dayDiff = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
+      if (dayDiff !== 0) {
+        return dayDiff;
+      }
+      return a.startTime.localeCompare(b.startTime);
+    });
 
     return res.json(Utils.Response.success(routine));
   } catch (err) {
