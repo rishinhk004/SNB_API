@@ -1,6 +1,7 @@
 import * as Utils from "src/utils";
 import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
+import { Enrollment } from "@prisma/client";
 
 const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
@@ -61,7 +62,7 @@ const cancelToday: Interfaces.Controllers.Async = async (req, res, next) => {
 
       const sessionInfo = { date: updatedSession.date };
 
-      const emailPromises = courseWithUsers.users.map((enrollment) => {
+      const emailPromises = courseWithUsers.users.map((enrollment: any) => {
         const studentInfo = { name: enrollment.user.name };
         return Utils.EmailServise.sendClassCancellationEmail(
           enrollment.user.email,
