@@ -3,7 +3,8 @@ import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
 import dayjs from "dayjs";
 
-const dayMap: { [key: string]: number } = {
+// Map of day names to numerical dayjs weekday values
+const dayMap: Record<string, number> = {
   Monday: 1,
   Tuesday: 2,
   Wednesday: 3,
@@ -13,13 +14,23 @@ const dayMap: { [key: string]: number } = {
   Sunday: 0,
 };
 
+// Define an interface for the sessions to create
+interface SessionInput {
+  courseId: string;
+  date: Date;
+}
+
 const generateSessions: Interfaces.Controllers.Async = async (
   req,
   res,
   next
 ) => {
   try {
-    const { courseId, startDate, endDate } = req.body;
+    const {
+      courseId,
+      startDate,
+      endDate,
+    }: { courseId?: string; startDate?: string; endDate?: string } = req.body;
 
     if (!courseId || !startDate || !endDate) {
       return res
@@ -40,7 +51,7 @@ const generateSessions: Interfaces.Controllers.Async = async (
     }
 
     const timetable = await prisma.timetable.findMany({ where: { courseId } });
-    if (!timetable.length) {
+    if (timetable.length === 0) {
       return res
         .status(404)
         .json(Utils.Response.error("No timetable found for this course", 404));
@@ -49,10 +60,11 @@ const generateSessions: Interfaces.Controllers.Async = async (
     let current = dayjs(startDate);
     const end = dayjs(endDate);
 
-    const sessionsToCreate: { courseId: string; date: Date }[] = [];
+    const sessionsToCreate: SessionInput[] = [];
 
     while (current.isBefore(end) || current.isSame(end, "day")) {
       for (const entry of timetable) {
+        // entry.dayOfWeek should be a string like "Monday"
         if (current.day() === dayMap[entry.dayOfWeek]) {
           const [hour, minute] = entry.startTime.split(":").map(Number);
 
@@ -73,24 +85,25 @@ const generateSessions: Interfaces.Controllers.Async = async (
       current = current.add(1, "day");
     }
 
-    // Query existing sessions for these dates to avoid duplicates
-    const sessionDates = sessionsToCreate.map((s) => s.date);
+    // Extract session dates
+    const sessionDates: Date[] = sessionsToCreate.map(
+      (s: SessionInput) => s.date
+    );
 
+    // Fetch existing sessions to avoid duplicates
     const existingSessions = await prisma.classSession.findMany({
       where: {
         courseId,
-        date: {
-          in: sessionDates,
-        },
+        date: { in: sessionDates },
       },
     });
 
-    const existingDatesSet = new Set(
-      existingSessions.map((s) => s.date.toISOString())
+    const existingDatesSet = new Set<string>(
+      existingSessions.map((s: { date: Date }) => s.date.toISOString())
     );
 
-    const filteredSessions = sessionsToCreate.filter(
-      (s) => !existingDatesSet.has(s.date.toISOString())
+    const filteredSessions: SessionInput[] = sessionsToCreate.filter(
+      (s: SessionInput) => !existingDatesSet.has(s.date.toISOString())
     );
 
     if (filteredSessions.length === 0) {

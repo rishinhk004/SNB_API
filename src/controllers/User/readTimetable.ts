@@ -1,6 +1,16 @@
 import * as Utils from "src/utils";
 import * as Interfaces from "src/interfaces";
 import { prisma } from "src/utils";
+import { Course, Timetable, Enrollment } from "@prisma/client";
+
+interface RoutineSlot {
+  courseName: string;
+  courseCode: string;
+  day: string;
+  startTime: string;
+  endTime: string;
+  location: string | null;
+}
 
 const routine: Interfaces.Controllers.Async = async (req, res, next) => {
   try {
@@ -35,42 +45,48 @@ const routine: Interfaces.Controllers.Async = async (req, res, next) => {
     ];
 
     // Sessions from enrolled courses (Student role)
-    const enrolledRoutines = user.courses.flatMap((enrollment) =>
-      enrollment.course.timetable.map((slot) => ({
-        courseName: enrollment.course.name,
-        courseCode: enrollment.course.code,
-        day: slot.dayOfWeek,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        location: slot.location,
-      }))
+    const enrolledRoutines: RoutineSlot[] = user.courses.flatMap(
+      (
+        enrollment: Enrollment & {
+          course: Course & { timetable: Timetable[] };
+        }
+      ) =>
+        enrollment.course.timetable.map((slot: Timetable) => ({
+          courseName: enrollment.course.name,
+          courseCode: enrollment.course.code,
+          day: slot.dayOfWeek,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+          location: slot.location,
+        }))
     );
 
     // Sessions from taught courses (Professor role)
-    const taughtRoutines =
+    const taughtRoutines: RoutineSlot[] =
       user.role === "Professor"
-        ? user.coursesTaught.flatMap((course) =>
-            course.timetable.map((slot) => ({
-              courseName: course.name,
-              courseCode: course.code,
-              day: slot.dayOfWeek,
-              startTime: slot.startTime,
-              endTime: slot.endTime,
-              location: slot.location,
-            }))
+        ? user.coursesTaught.flatMap(
+            (course: Course & { timetable: Timetable[] }) =>
+              course.timetable.map((slot: Timetable) => ({
+                courseName: course.name,
+                courseCode: course.code,
+                day: slot.dayOfWeek,
+                startTime: slot.startTime,
+                endTime: slot.endTime,
+                location: slot.location,
+              }))
           )
         : [];
 
     // Merge and sort
-    const routine = [...enrolledRoutines, ...taughtRoutines].sort((a, b) => {
+    const routineList: RoutineSlot[] = [
+      ...enrolledRoutines,
+      ...taughtRoutines,
+    ].sort((a: RoutineSlot, b: RoutineSlot) => {
       const dayDiff = dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day);
-      if (dayDiff !== 0) {
-        return dayDiff;
-      }
-      return a.startTime.localeCompare(b.startTime);
+      return dayDiff !== 0 ? dayDiff : a.startTime.localeCompare(b.startTime);
     });
 
-    return res.json(Utils.Response.success(routine));
+    return res.json(Utils.Response.success(routineList));
   } catch (err) {
     return next(Utils.Response.error((err as Error).message, 500));
   }

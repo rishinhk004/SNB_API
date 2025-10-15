@@ -10,7 +10,7 @@ const del: Interfaces.Controllers.Async = async (req, res, next) => {
       where: { courseId: id },
       select: { id: true },
     });
-    const questionIds = questions.map((q) => q.id);
+    const questionIds = questions.map((q: { id: string }) => q.id);
     await prisma.$transaction([
       prisma.answer.deleteMany({ where: { questionId: { in: questionIds } } }),
       prisma.question.deleteMany({ where: { courseId: id } }),
